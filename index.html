@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Видео</title>
     <style>
         * {
@@ -17,6 +17,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            height: -webkit-fill-available;
             overflow: hidden;
             font-family: Arial, sans-serif;
         }
@@ -36,6 +37,9 @@
             width: auto;
             height: auto;
             object-fit: contain;
+            /* Важно для iOS */
+            -webkit-playsinline: true;
+            playsinline: true;
         }
 
         #play-overlay {
@@ -53,6 +57,8 @@
             align-items: center;
             z-index: 5;
             transition: opacity 0.3s;
+            /* Для iOS Safari */
+            -webkit-tap-highlight-color: transparent;
         }
 
         #play-overlay::after {
@@ -72,8 +78,8 @@
 </head>
 <body>
     <div id="video-container">
-        <video id="myVideo" preload="auto">
-            <source src="rm.mp4" type="video/mp4">
+        <video id="myVideo" preload="metadata" muted playsinline webkit-playsinline>
+            <source src="combined.mp4" type="video/mp4">
             Ваш браузер не поддерживает видео.
         </video>
         <div id="play-overlay"></div>
@@ -83,9 +89,34 @@
         const video = document.getElementById('myVideo');
         const playOverlay = document.getElementById('play-overlay');
 
+        // Проверка на iOS
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
         playOverlay.addEventListener('click', () => {
-            video.play();
-            playOverlay.style.display = 'none';
+            video.play().then(() => {
+                playOverlay.style.display = 'none';
+            }).catch(err => {
+                console.log('Ошибка воспроизведения:', err);
+                // Если ошибка — пробуем с muted
+                if (!video.muted) {
+                    video.muted = true;
+                    video.play();
+                }
+            });
+        });
+
+        // Для iOS — добавляем обработчик touchend
+        playOverlay.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            video.play().then(() => {
+                playOverlay.style.display = 'none';
+            }).catch(err => {
+                if (!video.muted) {
+                    video.muted = true;
+                    video.play();
+                }
+            });
         });
 
         video.addEventListener('ended', () => {
@@ -94,8 +125,9 @@
 
         video.addEventListener('click', () => {
             if (video.paused) {
-                video.play();
-                playOverlay.style.display = 'none';
+                video.play().then(() => {
+                    playOverlay.style.display = 'none';
+                });
             }
         });
 
