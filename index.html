@@ -37,7 +37,6 @@
             width: auto;
             height: auto;
             object-fit: contain;
-            /* Важно для iOS */
             -webkit-playsinline: true;
             playsinline: true;
         }
@@ -57,7 +56,6 @@
             align-items: center;
             z-index: 5;
             transition: opacity 0.3s;
-            /* Для iOS Safari */
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -78,8 +76,8 @@
 </head>
 <body>
     <div id="video-container">
-        <video id="myVideo" preload="metadata" muted playsinline webkit-playsinline>
-            <source src="combined.mp4" type="video/mp4">
+        <video id="myVideo" preload="auto" muted playsinline webkit-playsinline>
+            <source src="rm.mp4" type="video/mp4">
             Ваш браузер не поддерживает видео.
         </video>
         <div id="play-overlay"></div>
@@ -89,33 +87,25 @@
         const video = document.getElementById('myVideo');
         const playOverlay = document.getElementById('play-overlay');
 
-        // Проверка на iOS
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-                      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        // Принудительная загрузка видео при старте
+        window.addEventListener('load', () => {
+            video.load();
+        });
 
         playOverlay.addEventListener('click', () => {
             video.play().then(() => {
                 playOverlay.style.display = 'none';
             }).catch(err => {
-                console.log('Ошибка воспроизведения:', err);
-                // Если ошибка — пробуем с muted
-                if (!video.muted) {
-                    video.muted = true;
-                    video.play();
-                }
+                console.log('Ошибка:', err);
             });
         });
 
-        // Для iOS — добавляем обработчик touchend
         playOverlay.addEventListener('touchend', (e) => {
             e.preventDefault();
             video.play().then(() => {
                 playOverlay.style.display = 'none';
             }).catch(err => {
-                if (!video.muted) {
-                    video.muted = true;
-                    video.play();
-                }
+                console.log('Ошибка:', err);
             });
         });
 
