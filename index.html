@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Видео</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        #video-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        video {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+
+        #play-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 5;
+            transition: opacity 0.3s;
+        }
+
+        #play-overlay::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 15px 0 15px 25px;
+            border-color: transparent transparent transparent #000;
+            margin-left: 5px;
+        }
+
+        #play-overlay:hover {
+            background: rgba(255, 255, 255, 1);
+        }
+    </style>
+</head>
+<body>
+    <div id="video-container">
+        <video id="myVideo" preload="auto">
+            <source src="" type="video/mp4">
+            Ваш браузер не поддерживает видео.
+        </video>
+        <div id="play-overlay"></div>
+    </div>
+
+    <script>
+        const video = document.getElementById('myVideo');
+        const playOverlay = document.getElementById('play-overlay');
+
+        // Список видео для последовательного воспроизведения
+        const videos = ['rm.mp4', 'go.mp4'];
+        let currentVideoIndex = 0;
+
+        // Загружаем первое видео
+        video.querySelector('source').src = videos[currentVideoIndex];
+        video.load();
+
+        // Запуск видео по клику
+        playOverlay.addEventListener('click', () => {
+            video.play();
+            playOverlay.style.display = 'none';
+        });
+
+        // Когда текущее видео заканчивается
+        video.addEventListener('ended', () => {
+            currentVideoIndex++;
+            
+            if (currentVideoIndex < videos.length) {
+                // Загружаем и проигрываем следующее видео
+                video.querySelector('source').src = videos[currentVideoIndex];
+                video.load();
+                video.play();
+            }
+        });
+
+        // Запуск по клику на само видео
+        video.addEventListener('click', () => {
+            if (video.paused) {
+                video.play();
+                playOverlay.style.display = 'none';
+            }
+        });
+
+        // Скрываем оверлей при воспроизведении
+        video.addEventListener('play', () => {
+            playOverlay.style.display = 'none';
+        });
+
+        // Показываем оверлей при паузе
+        video.addEventListener('pause', () => {
+            playOverlay.style.display = 'flex';
+        });
+    </script>
+</body>
+</html>
