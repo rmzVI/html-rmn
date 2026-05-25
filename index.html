@@ -73,7 +73,7 @@
 <body>
     <div id="video-container">
         <video id="myVideo" preload="auto">
-            <source src="" type="video/mp4">
+            <source src="rm.mp4" type="video/mp4">
             Ваш браузер не поддерживает видео.
         </video>
         <div id="play-overlay"></div>
@@ -83,35 +83,13 @@
         const video = document.getElementById('myVideo');
         const playOverlay = document.getElementById('play-overlay');
 
-        const videos = ['rm.mp4', 'go.mp4'];
-        let currentVideoIndex = 0;
-
-        function loadVideo(index) {
-            currentVideoIndex = index;
-            video.querySelector('source').src = videos[currentVideoIndex];
-            video.load();
-        }
-
-        // Загружаем первое видео
-        loadVideo(0);
-
         playOverlay.addEventListener('click', () => {
             video.play();
             playOverlay.style.display = 'none';
         });
 
         video.addEventListener('ended', () => {
-            currentVideoIndex++;
-            
-            if (currentVideoIndex < videos.length) {
-                // Загружаем и проигрываем следующее видео
-                loadVideo(currentVideoIndex);
-                video.play();
-            } else {
-                // Все видео просмотрены — сбрасываем на первое и показываем кнопку
-                loadVideo(0);
-                playOverlay.style.display = 'flex';
-            }
+            playOverlay.style.display = 'flex';
         });
 
         video.addEventListener('click', () => {
